@@ -22,7 +22,7 @@ class GhostscriptConverterCommand
     /**
      * @var Filesystem
      */
-    protected $baseCommand = 'gs -sDEVICE=pdfwrite -dCompatibilityLevel=%s -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -dColorConversionStrategy=/LeaveColorUnchanged -dEncodeColorImages=false -dEncodeGrayImages=false -dEncodeMonoImages=false -dDownsampleMonoImages=false -dDownsampleGrayImages=false -dDownsampleColorImages=false -dAutoFilterColorImages=false -dAutoFilterGrayImages=false -dColorImageFilter=/FlateEncode -dGrayImageFilter=/FlateEncode -sOutputFile=%s %s';
+    protected $baseCommand = ['gs', '-sDEVICE=pdfwrite', '-dCompatibilityLevel=%s', '-dPDFSETTINGS=/screen', '-dNOPAUSE', '-dQUIET', '-dBATCH', '-dColorConversionStrategy=/LeaveColorUnchanged', '-dEncodeColorImages=false', '-dEncodeGrayImages=false', '-dEncodeMonoImages=false', '-dDownsampleMonoImages=false', '-dDownsampleGrayImages=false', '-dDownsampleColorImages=false', '-dAutoFilterColorImages=false', '-dAutoFilterGrayImages=false', '-dColorImageFilter=/FlateEncode', '-dGrayImageFilter=/FlateEncode', '-sOutputFile=%s', '%s'];
 
     public function __construct()
     {
@@ -30,9 +30,11 @@ class GhostscriptConverterCommand
 
     public function run($originalFile, $newFile, $newVersion)
     {
-        $command = sprintf($this->baseCommand, $newVersion, $newFile, escapeshellarg($originalFile));
-
-        $process = new Process(explode(' ', $command));
+        $command = $this->baseCommand;
+        $command[2] = sprintf($command[2], $newVersion);
+        $command[18] = sprintf($command[18], $newFile);
+        $command[19] = sprintf($command[19], $originalFile);
+        $process = new Process($command);
         $process->run();
 
         if (!$process->isSuccessful()) {
